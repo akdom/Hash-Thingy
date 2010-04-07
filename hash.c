@@ -1,4 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
 #define TABLESIZE 16
+
+/* Key Index */
+int index = 0;
 
 /* Node struct */
 typedef struct Node Node;
@@ -22,6 +27,9 @@ int read_vec(int* our_vec, int length);
  * +<int> if their_vec is before our_vec.
  */
 int vec_cmp(int* our_vec, int* their_vec, length);
+
+/*Malloc space and fill out a new node */
+Node *create_node(int index, int* our_vec, length);
 
 /* Hash function: Returns an index into the hash table (int) */
 int hash_func(int* our_vec, int length);
@@ -71,6 +79,28 @@ int vec_cmp(int* our_vec, int* their_vec, length) {
 	return 0;
 }
 
+Node *create_node(int index, int* our_vec, length) {
+	int i;
+	Node *new_node = (Node *) malloc(sizeof(Node));
+	if (new_node == NULL) {
+		perror("Not enough space to malloc for a new node.");
+		exit(EXIT_FAILURE);
+	}
+	
+	new_node->key = (int *) malloc(sizeof(int)*length);
+	if (new_node->key == NULL) {
+		perror("Not enough space to malloc for a key.");
+		exit(EXIT_FAILURE);
+	}
+	
+	new_node->index = index;
+	new_node->next = NULL;
+	for(i=0; i<length; i++) {
+		new_node->key[i] = our_vec[i];
+	}
+	return new_node;
+}
+
 int hash_func(int* our_vec, int length) {
 	/* Here lies a stupid hash function for testing */
 	int i, sum=0;
@@ -91,3 +121,19 @@ node **lookup(int* our_vec, int length) {
 	return &curr_node;
 }
 
+int insert(int* our_vec, int length) {
+	Node *temp_node;
+	Node **node_ptr = lookup(our_vec, length);
+	if (*node_ptr == NULL) {
+		*node_ptr = create_node(index, our_vec, length);
+		return index++;
+	} else if (vec_cmp(our_vec, (*node_ptr)->key, length) == 0) {
+		return -1;
+	} else {
+		/* insert before the node returned by lookup */
+		temp_node = *node_ptr;
+		node_ptr = &(create_node(index, our_vec, length));
+		(*node_ptr)->next = temp_node;
+		return index++;
+	}
+}
