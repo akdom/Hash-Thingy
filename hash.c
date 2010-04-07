@@ -15,7 +15,13 @@ Node table[TABLESIZE];
 void initialize();
 
 /* Read in a vector */
-void read_vec(int* our_vec, int length);
+int read_vec(int* our_vec, int length);
+
+/* Compare values of two vectors */
+/* returns 0 if equal, -<int> if our_vec is before their_vec
+ * +<int> if their_vec is before our_vec.
+ */
+int vec_cmp(int* our_vec, int* their_vec, length);
 
 /* Hash function: Returns an index into the hash table (int) */
 int hash_func(int* our_vec, int length);
@@ -33,12 +39,6 @@ Node **lookup(int* our_vec, int length);
  */
 int insert(int* our_vec, int length);
 
-/* Compare values of two vectors */
-/* returns 0 if equal, -<int> if our_vec is before their_vec
- * +<int> if their_vec is before our_vec.
- */
-int vec_cmp(int* our_vec, int* their_vec, length);
-
 /* Main */
 int main() { 
 	int length;
@@ -51,8 +51,14 @@ void initialize() {
 	for(i=0; i< TABLESIZE; i++) { table[i] = NULL; }
 }
 
-void read_vec(int* our_vec, int length) {
-	return;
+int read_vec(int* our_vec, int length) {
+	int i, result;
+	for(i=0; i<length; i++) {
+		result = scanf("%d", &our_vec[i]);
+		if (result != 1) { return result; }
+		if (our_vec[i] == -911) { return -1; }
+	}
+	return 0;
 }
 
 int vec_cmp(int* our_vec, int* their_vec, length) {
