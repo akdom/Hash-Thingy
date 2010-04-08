@@ -59,7 +59,10 @@ Node **lookup(int* our_vec, int length);
 int insert(int* our_vec, int length);
 
 /* Traversal function */
-void map_traverse(void *func(Node *my_node), int length);
+void map_traverse(void func(Node *my_node, int i, int j, int length), int length);
+
+/* Function to be handed to map_traverse */
+void print_hash(Node *my_node, int bucket, int column, int length);
 
 /* Main */
 int main() { 
@@ -84,6 +87,8 @@ int main() {
 		}
 	}
 	printf("collisions: %d\n", collisions);
+	
+	map_traverse(print_hash, length);
 	
 	return 0;
 }
@@ -185,7 +190,8 @@ int insert(int* our_vec, int length) {
 	if (*node_ptr == NULL) {
 		*node_ptr = create_node(index, our_vec, length);
 		return index++;
-	} else if (vec_cmp(our_vec, (*node_ptr)->key, length) == 0) {
+	} else if (vec_cmp(our_vec, (*node_ptr)->key, length) == 0 || 
+				((*node_ptr)->next != NULL && vec_cmp(our_vec, node_ptr->next->key, length) == 0) ) {
 		return -1;
 	} else {
 		/* insert after the node returned by lookup */
@@ -198,4 +204,34 @@ int insert(int* our_vec, int length) {
 		
 		return index++;
 	}
+}
+
+void map_traverse(void func(Node *my_node, int i, int j, int length), int length) {
+	int i, j;
+	Node *curr_node;
+	for (i=0;i < TABLESIZE; i++) {
+		curr_node = table[i];
+		j = 0;
+		while(curr_node != NULL) {
+			func(curr_node, i, j, length);
+			curr_node = curr_node->next;
+			j++;
+		}
+	}
+}
+
+void print_hash(Node *my_node, int bucket, int column, int length) {
+	int i;
+	if(column == 0) {
+		printf("\n");
+		printf("%d:  ", bucket);
+	}
+	
+	printf("( ");
+	for(i=0; i<length; i++) {
+		printf("%d, ", my_node->key[i]);
+	}
+	printf(") -> ");
+	
+	return;
 }
