@@ -4,7 +4,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#define TABLESIZE 16
+#define TABLESIZE 5000
 
 /* Key Index */
 int index = 0;
@@ -149,9 +149,14 @@ Node *create_node(int index, int* our_vec, int length) {
 
 int hash_func(int* our_vec, int length) {
 	/* Here lies a stupid hash function for testing */
-	int i, sum=0;
-	for (i=0; i < length; i++) { sum += our_vec[i]; }
-	return sum%TABLESIZE;
+	int i, hash=0;
+	for (i=0; i < length; i++) { 
+		hash ^= our_vec[i] << (2*i);
+		//sum += our_vec[i]; 
+	}
+	hash = abs(hash)%TABLESIZE;
+	//printf("Hash value is: %d\n", hash);
+	return hash;
 }
 
 Node **lookup(int* our_vec, int length) {
