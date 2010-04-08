@@ -28,6 +28,10 @@ int read_vec(int* our_vec, int length);
  */
 int vec_cmp(int* our_vec, int* their_vec, length);
 
+
+/* Print out the vector in clean form (e.g. <a, b, c, ..., z>) */
+void vec_print(int* our_vec, length);
+
 /*Malloc space and fill out a new node */
 Node *create_node(int index, int* our_vec, length);
 
@@ -49,8 +53,27 @@ int insert(int* our_vec, int length);
 
 /* Main */
 int main() { 
-	int length;
+	int length, result;
+	
 	initialize();
+	result = scanf("%d", &length);
+	
+	int our_vec[length];
+	read_vec(our_vec, length);
+	
+	while(read_vec(our_vec, length) == 0) {
+		result = insert(our_vec, length);
+		if(result == -1) {
+			printf("Key ");
+			vec_print(our_vec, length);
+			printf(" has been ignored.\n");
+		} else {
+			printf("Key ");
+			vec_print(our_vec, length);
+			printf(" has been assigned the key %d.\n", result);
+		}
+	}
+	
 	return 0;
 }
 
@@ -67,6 +90,18 @@ int read_vec(int* our_vec, int length) {
 		if (our_vec[i] == -911) { return -1; }
 	}
 	return 0;
+}
+
+void vec_print(int* our_vec, length) {
+	int i;
+	
+	print("<");
+	for(i=0; i<(length-1); i++) {
+		printf("%d, ");
+	}
+	printf("%d>", &our_vec[i]);
+	
+	return;
 }
 
 int vec_cmp(int* our_vec, int* their_vec, length) {
