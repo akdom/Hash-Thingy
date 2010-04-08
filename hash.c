@@ -1,3 +1,7 @@
+/*TODO:
+ * 1. Number of collisions
+ * 2. Function to print out hash table
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #define TABLESIZE 16
@@ -11,10 +15,10 @@ struct Node {
 	int index;
 	int *key;
 	Node *next;
-}
+};
 
 /* Hash Table */
-Node table[TABLESIZE];
+Node *table[TABLESIZE];
 
 /* Set up initial conditions (like cleaning hash table) */
 void initialize();
@@ -26,14 +30,14 @@ int read_vec(int* our_vec, int length);
 /* returns 0 if equal, -<int> if our_vec is before their_vec
  * +<int> if their_vec is before our_vec.
  */
-int vec_cmp(int* our_vec, int* their_vec, length);
+int vec_cmp(int* our_vec, int* their_vec, int length);
 
 
 /* Print out the vector in clean form (e.g. <a, b, c, ..., z>) */
-void vec_print(int* our_vec, length);
+void vec_print(int* our_vec, int length);
 
 /*Malloc space and fill out a new node */
-Node *create_node(int index, int* our_vec, length);
+Node *create_node(int index, int* our_vec, int length);
 
 /* Hash function: Returns an index into the hash table (int) */
 int hash_func(int* our_vec, int length);
@@ -92,19 +96,19 @@ int read_vec(int* our_vec, int length) {
 	return 0;
 }
 
-void vec_print(int* our_vec, length) {
+void vec_print(int* our_vec, int length) {
 	int i;
 	
-	print("<");
+	printf("<");
 	for(i=0; i<(length-1); i++) {
-		printf("%d, ");
+		printf("%d, ", our_vec[i]);
 	}
-	printf("%d>", &our_vec[i]);
+	printf("%d>", our_vec[i]);
 	
 	return;
 }
 
-int vec_cmp(int* our_vec, int* their_vec, length) {
+int vec_cmp(int* our_vec, int* their_vec, int length) {
 	int i;
 	for(i=0; i<length; i++) {
 		if (our_vec[i] != their_vec[i]) {
@@ -114,7 +118,7 @@ int vec_cmp(int* our_vec, int* their_vec, length) {
 	return 0;
 }
 
-Node *create_node(int index, int* our_vec, length) {
+Node *create_node(int index, int* our_vec, int length) {
 	int i;
 	Node *new_node = (Node *) malloc(sizeof(Node));
 	if (new_node == NULL) {
@@ -143,17 +147,17 @@ int hash_func(int* our_vec, int length) {
 	return sum%TABLESIZE;
 }
 
-node **lookup(int* our_vec, int length) {
-	Node *curr_node = table[hash_func(our_vec, length)];
+Node **lookup(int* our_vec, int length) {
+	Node **curr_node = &table[hash_func(our_vec, length)];
 	
-	while(curr_node != NULL) {
-		if (vec_cmp(our_vec, curr_node->key, length) >= 0) {
-			return &curr_node;
+	while(*curr_node != NULL) {
+		if (vec_cmp(our_vec, (*curr_node)->key, length) >= 0) {
+			return curr_node;
 		} else {
-			curr_node = curr_node->next;
+			curr_node = &(*curr_node)->next;
 		}
 	}
-	return &curr_node;
+	return curr_node;
 }
 
 int insert(int* our_vec, int length) {
@@ -167,7 +171,7 @@ int insert(int* our_vec, int length) {
 	} else {
 		/* insert before the node returned by lookup */
 		temp_node = *node_ptr;
-		node_ptr = &(create_node(index, our_vec, length));
+		*node_ptr = create_node(index, our_vec, length);
 		(*node_ptr)->next = temp_node;
 		return index++;
 	}
