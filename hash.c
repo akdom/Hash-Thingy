@@ -9,6 +9,9 @@
 /* Key Index */
 int index = 0;
 
+/* Total collisions */
+int collisions = 0;
+
 /* Node struct */
 typedef struct Node Node;
 struct Node {
@@ -55,6 +58,9 @@ Node **lookup(int* our_vec, int length);
  */
 int insert(int* our_vec, int length);
 
+/* Traversal function */
+void map_traverse(void *func(Node *my_node), int length);
+
 /* Main */
 int main() { 
 	int length, result;
@@ -77,6 +83,7 @@ int main() {
 			printf(" has been assigned the key %d.\n", result);
 		}
 	}
+	printf("collisions: %d\n", collisions);
 	
 	return 0;
 }
@@ -170,6 +177,7 @@ int insert(int* our_vec, int length) {
 		return -1;
 	} else {
 		/* insert before the node returned by lookup */
+		collisions++;
 		temp_node = *node_ptr;
 		*node_ptr = create_node(index, our_vec, length);
 		(*node_ptr)->next = temp_node;
