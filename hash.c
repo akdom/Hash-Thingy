@@ -64,6 +64,9 @@ void map_traverse(void func(Node *my_node, int i, int j, int length), int length
 /* Function to be handed to map_traverse */
 void print_hash(Node *my_node, int bucket, int column, int length);
 
+/* Print the key for an arbitrary node */
+void print_key(Node *my_node, int length);
+
 /* Main */
 int main() { 
 	int length, result;
@@ -167,43 +170,70 @@ int hash_func(int* our_vec, int length) {
 
 Node **lookup(int* our_vec, int length) {
 	Node **curr_node = &table[hash_func(our_vec, length)];
+	int comparison = 0;
 	
 	if (*curr_node == NULL) {
-		return curr_node;
-	} else if (vec_cmp(our_vec, (*curr_node)->key, length) <= 0) {
+			
+			print_key(*curr_node, length);
+			printf("\n");
+			
 		return curr_node;
 	}
 	
 	while((*curr_node)->next != NULL) {
-		if (vec_cmp(our_vec, (*curr_node)->next->key, length) >= 0) {
+		comparison = vec_cmp(our_vec, (*curr_node)->key, length);
+		
+		if (comparison <= 0) {
+			
+			print_key(*curr_node, length);
+			printf("\n");
+			
 			return curr_node;
 		} else {
 			curr_node = &(*curr_node)->next;
 		}
 	}
+	
+	print_key(*curr_node, length);
+	printf("\n");
+	
 	return curr_node;
 }
 
 int insert(int* our_vec, int length) {
 	Node *temp_node;
 	Node **node_ptr = lookup(our_vec, length);
+	int comparison = 0;
+	
 	if (*node_ptr == NULL) {
 		*node_ptr = create_node(index, our_vec, length);
 		return index++;
-	} else if (vec_cmp(our_vec, (*node_ptr)->key, length) == 0 || 
-				((*node_ptr)->next != NULL && vec_cmp(our_vec, node_ptr->next->key, length) == 0) ) {
+	} 
+	
+	comparison = vec_cmp(our_vec, (*node_ptr)->key, length);	
+	
+	if (comparison == 0 ) {// || 
+			//	((*node_ptr)->next != NULL && vec_cmp(our_vec, (*node_ptr)->next->key, length) == 0) ) {
 		return -1;
+	} else if (comparison < 0) {
+		/* insert before the node returned by lookup */
+		temp_node = *node_ptr;
+		*node_ptr = create_node(index, our_vec, length);
+		(*node_ptr)->next = temp_node;
+		
+		collisions++;
+		printf("Insert before.\n");
 	} else {
 		/* insert after the node returned by lookup */
-		collisions++;
 		temp_node = (*node_ptr)->next;
 		(*node_ptr)->next = create_node(index, our_vec, length);
-		if (temp_node != NULL) {
-			(*node_ptr)->next->next = temp_node;
-		}
+		(*node_ptr)->next->next = temp_node;
 		
-		return index++;
+		collisions++;
+		printf("Insert after.\n");
 	}
+	
+	return index++;
 }
 
 void map_traverse(void func(Node *my_node, int i, int j, int length), int length) {
@@ -220,18 +250,31 @@ void map_traverse(void func(Node *my_node, int i, int j, int length), int length
 	}
 }
 
-void print_hash(Node *my_node, int bucket, int column, int length) {
+void print_key(Node *my_node, int length) {
 	int i;
-	if(column == 0) {
-		printf("\n");
-		printf("%d:  ", bucket);
+	
+	if (my_node == NULL) { 
+		printf("(NULL)"); 
+		return;
 	}
 	
 	printf("( ");
 	for(i=0; i<length; i++) {
 		printf("%d, ", my_node->key[i]);
 	}
-	printf(") -> ");
+	printf(")");
+	
+	return;
+}
+
+void print_hash(Node *my_node, int bucket, int column, int length) {
+	if(column == 0) {
+		printf("\n");
+		printf("%d:  ", bucket);
+	}
+	
+	print_key(my_node, length);
+	printf(" -> ");
 	
 	return;
 }
