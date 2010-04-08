@@ -1,3 +1,5 @@
 Data
 *.swp
 a.out
+*.log
+*.out

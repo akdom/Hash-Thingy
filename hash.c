@@ -4,7 +4,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#define TABLESIZE 100
+#define TABLESIZE 16384
 
 /* Key Index */
 int index = 0;
@@ -157,13 +157,16 @@ Node *create_node(int index, int* our_vec, int length) {
 
 int hash_func(int* our_vec, int length) {
 	/* Here lies a stupid hash function for testing */
-	int i, hash=0;
+	unsigned int i, hash=0, meaning=42;//618033988;
+	
 	for (i=0; i < length; i++) { 
-		hash ^= our_vec[i] << (3*i);
+		hash ^= (unsigned int) our_vec[i] << (3*i);
+		hash *= meaning;
+		hash ^= meaning;
 		hash = hash >> 2;
 		//sum += our_vec[i]; 
 	}
-	hash = abs(hash)%TABLESIZE;
+	hash = hash%TABLESIZE;
 	//printf("Hash value is: %d\n", hash);
 	return hash;
 }
@@ -173,10 +176,6 @@ Node **lookup(int* our_vec, int length) {
 	int comparison = 0;
 	
 	if (*curr_node == NULL) {
-			
-			print_key(*curr_node, length);
-			printf("\n");
-			
 		return curr_node;
 	}
 	
@@ -184,18 +183,11 @@ Node **lookup(int* our_vec, int length) {
 		comparison = vec_cmp(our_vec, (*curr_node)->key, length);
 		
 		if (comparison <= 0) {
-			
-			print_key(*curr_node, length);
-			printf("\n");
-			
 			return curr_node;
 		} else {
 			curr_node = &(*curr_node)->next;
 		}
 	}
-	
-	print_key(*curr_node, length);
-	printf("\n");
 	
 	return curr_node;
 }
@@ -222,7 +214,6 @@ int insert(int* our_vec, int length) {
 		(*node_ptr)->next = temp_node;
 		
 		collisions++;
-		printf("Insert before.\n");
 	} else {
 		/* insert after the node returned by lookup */
 		temp_node = (*node_ptr)->next;
@@ -230,7 +221,6 @@ int insert(int* our_vec, int length) {
 		(*node_ptr)->next->next = temp_node;
 		
 		collisions++;
-		printf("Insert after.\n");
 	}
 	
 	return index++;
