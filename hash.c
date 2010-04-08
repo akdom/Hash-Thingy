@@ -4,7 +4,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#define TABLESIZE 5000
+#define TABLESIZE 100
 
 /* Key Index */
 int index = 0;
@@ -151,7 +151,8 @@ int hash_func(int* our_vec, int length) {
 	/* Here lies a stupid hash function for testing */
 	int i, hash=0;
 	for (i=0; i < length; i++) { 
-		hash ^= our_vec[i] << (2*i);
+		hash ^= our_vec[i] << (3*i);
+		hash = hash >> 2;
 		//sum += our_vec[i]; 
 	}
 	hash = abs(hash)%TABLESIZE;
@@ -162,8 +163,14 @@ int hash_func(int* our_vec, int length) {
 Node **lookup(int* our_vec, int length) {
 	Node **curr_node = &table[hash_func(our_vec, length)];
 	
-	while(*curr_node != NULL) {
-		if (vec_cmp(our_vec, (*curr_node)->key, length) >= 0) {
+	if (*curr_node == NULL) {
+		return curr_node;
+	} else if (vec_cmp(our_vec, (*curr_node)->key, length) <= 0) {
+		return curr_node;
+	}
+	
+	while((*curr_node)->next != NULL) {
+		if (vec_cmp(our_vec, (*curr_node)->next->key, length) >= 0) {
 			return curr_node;
 		} else {
 			curr_node = &(*curr_node)->next;
@@ -181,11 +188,14 @@ int insert(int* our_vec, int length) {
 	} else if (vec_cmp(our_vec, (*node_ptr)->key, length) == 0) {
 		return -1;
 	} else {
-		/* insert before the node returned by lookup */
+		/* insert after the node returned by lookup */
 		collisions++;
-		temp_node = *node_ptr;
-		*node_ptr = create_node(index, our_vec, length);
-		(*node_ptr)->next = temp_node;
+		temp_node = (*node_ptr)->next;
+		(*node_ptr)->next = create_node(index, our_vec, length);
+		if (temp_node != NULL) {
+			(*node_ptr)->next->next = temp_node;
+		}
+		
 		return index++;
 	}
 }
