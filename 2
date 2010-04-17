@@ -4,13 +4,12 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #define TABLESIZE (16384)
 #define KEYTYPE char
-#define INPUTSIZE 1024
+#define INPUTSIZE 3;
 
 /* String for pulling in input strings */
-char input[INPUTSIZE+1];
+char input[256];
 
 /* Key Index */
 int index = 0;
@@ -83,22 +82,13 @@ void link_length(Node *my_node, int bucket, int column, int length);
 void print_key(Node *my_node, int length);
 
 /* Main */
-int main(int argc, char* argv[]) { 
+int main(int argc, char argv[]) { 
 	int length, result;
-	FILE* in_file;
 	
-	printf("%s %d\n", argv[0], argc);
-	if(argc > 1) {
-		strncpy(input, argv[1], INPUTSIZE);
-		in_file = fopen(input, "r");
-		if (!in_file) {
-			printf("Invalid filename provided as first argument.");
-			exit(EXIT_FAILURE);
-		}
-	} else {
-		printf("Missing first argument <input filename>, please provide.");
-		exit(EXIT_FAILURE);
+	if(argc < 2) {
+		strncpy();
 	}
+	FILE* in_file = stdin;
 	
 	initialize();
 	result = fscanf(in_file, "%d", &length);
