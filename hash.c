@@ -82,6 +82,9 @@ void link_length(Node *my_node, int bucket, int column, int length);
 /* Print the key for an arbitrary node */
 void print_key(Node *my_node, int length);
 
+/* Read an int from stdin */
+int read_int();
+
 /* Main */
 int main(int argc, char* argv[]) { 
 	int length, result;
@@ -120,6 +123,7 @@ int main(int argc, char* argv[]) {
 		}
 		*/
 	}
+
 	printf("table size: %d\n",  TABLESIZE);
 	printf("items: %d\n", index);
 	printf("collisions: %d\n", collisions);
@@ -129,7 +133,34 @@ int main(int argc, char* argv[]) {
 	longest_link = 0;
 	map_traverse(link_length, length);
 	printf("largest bucket: %d\n", longest_link);
-	printf("total memory used by table: %lfMB", ((double) total_memory(length)) / (1024*1024));
+	printf("total memory used by table: %lfMB\n", ((double) total_memory(length)) / (1024*1024));
+	
+	Node** node_ptr;
+	printf("\nLength of key is %d\n", length);
+	while(1) {
+		printf("\nLookup by index (0), by key (1), or exit (2):\n-->  ");
+		switch(read_int()) {
+			case 0:
+				break;
+			case 1:
+				read_vec(our_vec, stdin, length);
+				node_ptr = lookup(our_vec, length);
+				if( *node_ptr == NULL ) {
+					printf("Provided key is not available.");
+					break;
+				}
+				printf("Index value is: %d", (*node_ptr)->index);
+				break;
+			case 2:
+				printf("Thank you, come again!\n");
+				exit(EXIT_SUCCESS);
+				break;
+			default:
+				printf("Invalid argument\n");
+				continue;
+		}
+	}
+	
 	
 	//map_traverse(print_hash, length);
 	
@@ -158,6 +189,12 @@ int read_vec(KEYTYPE* our_vec, FILE* in_file, int length) {
 		if (our_vec[i] == -911) { return -1; }
 	}
 	return 0;
+}
+
+int read_int() {
+	int index;
+	scanf("%d", &index);
+	return index;
 }
 
 void vec_print(KEYTYPE* our_vec, int length) {
