@@ -243,14 +243,11 @@ Node *create_node(int index, KEYTYPE* our_vec, int length) {
 
 int hash_func(KEYTYPE* our_vec, int length) {
 	/* Here lies a stupid hash function for testing */
-	unsigned int i, hash=0, meaning=42;//618033988;
-	
-	for (i=0; i < length; i++) { 
-		hash ^= (unsigned int) our_vec[i] << (3*i);
-		hash *= meaning;
-		hash ^= meaning;
-		hash = hash >> 2;
-		//sum += our_vec[i]; 
+	unsigned int i, hash=0;
+
+	for (i=0; i < length; i++) {
+		hash ^= (hash<<5) + (hash>>3) + our_vec[i];
+		hash += 1;
 	}
 	hash = hash%TABLESIZE;
 	//printf("Hash value is: %d\n", hash);
