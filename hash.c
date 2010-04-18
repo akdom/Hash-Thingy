@@ -16,6 +16,9 @@ char input[INPUTSIZE+1];
 /* Key Index */
 int index = 0;
 
+/* Probes... is set when lookup is called.*/
+int probes = 0;
+
 /* Total collisions */
 int collisions = 0;
 
@@ -169,7 +172,9 @@ int main(int argc, char* argv[]) {
 					printf("Provided index is not available.\n");
 					break;
 				}
+				printf("The key is:\n");
 				print_key(&reverse_table[temp], length);
+				printf("\nAnd it took 0 probes to find.");
 				break;
 			case 1:
 				temp = read_vec(our_vec, stdin, length);
@@ -183,7 +188,8 @@ int main(int argc, char* argv[]) {
 					printf("Provided key is not available.\n");
 					break;
 				}
-				printf("Index value is: %d", (*node_ptr)->index);
+				printf("Index value is: %d\n", (*node_ptr)->index);
+				printf("And it took %d probes to find.", probes);
 				break;
 			case 2:
 				printf("Thank you, come again!\n");
@@ -309,6 +315,8 @@ Node **lookup(KEYTYPE* our_vec, int length) {
 	Node **curr_node = &table[hash_func(our_vec, length)];
 	int comparison = 0;
 	
+	probes = 0;
+	
 	if (*curr_node == NULL) {
 		return curr_node;
 	}
@@ -319,6 +327,8 @@ Node **lookup(KEYTYPE* our_vec, int length) {
 		if (comparison <= 0) {
 			return curr_node;
 		} else {
+			probes++;
+			printf("Step required, probes (%d)\n", probes);
 			curr_node = &(*curr_node)->next;
 		}
 	}
