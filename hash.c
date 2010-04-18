@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #define TABLESIZE (16384)
-#define KEYTYPE char
+#define KEYTYPE unsigned char
 #define INPUTSIZE 1024
+#define RANDSIZE 256
 
 /* String for pulling in input strings */
 char input[INPUTSIZE+1];
@@ -31,6 +32,15 @@ struct Node {
 
 /* Hash Table */
 Node *table[TABLESIZE];
+char rand_table[RANDSIZE];
+/* Reverse lookup */
+Node *reverse_table;
+
+/* Malloc space for, and copy everything to, the reverse lookup. */
+Node* build_reverse(int length);
+
+/* Add the given key to the reverse_table  */
+void add_to_reverse(Node *my_node, int bucket, int column, int length);
 
 /* Return total memory used by the hash table in bytes*/
 int total_memory(int length);
@@ -123,7 +133,9 @@ int main(int argc, char* argv[]) {
 		}
 		*/
 	}
-
+	
+	build_reverse(length);
+	
 	printf("table size: %d\n",  TABLESIZE);
 	printf("items: %d\n", index);
 	printf("collisions: %d\n", collisions);
@@ -132,15 +144,21 @@ int main(int argc, char* argv[]) {
 	printf("portion of table unused: %lf\n", (double) (TABLESIZE-(index-collisions)) / TABLESIZE);
 	longest_link = 0;
 	map_traverse(link_length, length);
-	printf("largest bucket: %d\n", longest_link);
+	printf("largest bucket: %d\n", longest_link + 1);
 	printf("total memory used by table: %lfMB\n", ((double) total_memory(length)) / (1024*1024));
 	
+	int temp;
 	Node** node_ptr;
 	printf("\nLength of key is %d\n", length);
 	while(1) {
 		printf("\nLookup by index (0), by key (1), or exit (2):\n-->  ");
 		switch(read_int()) {
 			case 0:
+				temp = read_int();
+				if(temp >= index || temp < 0) {
+					printf("Provided index is not available.");
+				}
+				print_key(&reverse_table[temp], length);
 				break;
 			case 1:
 				read_vec(our_vec, stdin, length);
@@ -167,6 +185,17 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
+Node* build_reverse(int length) {
+	reverse_table = (Node *) malloc(sizeof(Node)*index);
+	map_traverse(add_to_reverse, length);
+	return reverse_table;
+}
+
+void add_to_reverse(Node *my_node, int bucket, int column, int length) {
+	reverse_table[my_node->index] = *my_node;
+	return;
+}
+
 int total_memory(int length) {
 	int mem_pointer = sizeof(size_t);
 	int mem_table = mem_pointer * TABLESIZE;
@@ -178,6 +207,7 @@ int total_memory(int length) {
 void initialize() {
 	int i;
 	for(i=0; i< TABLESIZE; i++) { table[i] = NULL; }
+	for(i=0; i< RANDSIZE; i++) { rand_table[i] = rand(); }
 }
 
 int read_vec(KEYTYPE* our_vec, FILE* in_file, int length) {
@@ -246,9 +276,10 @@ int hash_func(KEYTYPE* our_vec, int length) {
 	unsigned int i, hash=0;
 
 	for (i=0; i < length; i++) {
-		hash ^= (hash<<5) + (hash>>3) + our_vec[i];
+		hash ^= (hash<<7) + (hash>>5) + our_vec[i];
 		hash += 1;
 	}
+	
 	hash = hash%TABLESIZE;
 	//printf("Hash value is: %d\n", hash);
 	return hash;
@@ -333,7 +364,7 @@ void print_key(Node *my_node, int length) {
 	
 	printf("( ");
 	for(i=0; i<length; i++) {
-		printf("%d, ", my_node->key[i]);
+		printf("%d ", my_node->key[i]);
 	}
 	printf(")");
 	
