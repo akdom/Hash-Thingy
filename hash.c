@@ -32,7 +32,7 @@ struct Node {
 
 /* Hash Table */
 Node *table[TABLESIZE];
-char rand_table[RANDSIZE];
+int rand_table[RANDSIZE];
 /* Reverse lookup */
 Node *reverse_table;
 
@@ -201,7 +201,9 @@ int total_memory(int length) {
 	int mem_table = mem_pointer * TABLESIZE;
 	int mem_node = sizeof(Node) + (length * sizeof(KEYTYPE));
 	int mem_buckets = mem_node * index;
-	return mem_buckets + mem_table;
+	int mem_reverse = index * mem_pointer;
+	int mem_rand = RANDSIZE * sizeof(int);
+	return mem_buckets + mem_table + mem_reverse + mem_rand;
 }
 
 void initialize() {
@@ -223,7 +225,7 @@ int read_vec(KEYTYPE* our_vec, FILE* in_file, int length) {
 
 int read_int() {
 	int index;
-	scanf("%d", &index);
+	(void) scanf("%d", &index);
 	return index;
 }
 
