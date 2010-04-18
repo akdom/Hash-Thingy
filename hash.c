@@ -100,7 +100,6 @@ int main(int argc, char* argv[]) {
 	int length, result;
 	FILE* in_file;
 	
-	printf("%s %d\n", argv[0], argc);
 	if(argc > 1) {
 		strncpy(input, argv[1], INPUTSIZE);
 		in_file = fopen(input, "r");
@@ -148,23 +147,40 @@ int main(int argc, char* argv[]) {
 	printf("total memory used by table: %lfMB\n", ((double) total_memory(length)) / (1024*1024));
 	
 	int temp;
+	char tempc;
 	Node** node_ptr;
 	printf("\nLength of key is %d\n", length);
 	while(1) {
 		printf("\nLookup by index (0), by key (1), or exit (2):\n-->  ");
-		switch(read_int()) {
+		temp = read_int();
+		if(temp < 0) {
+			printf("Invalid argument.\n");
+			while((tempc = getchar()) != '\n') { ; }
+			continue;
+		}
+		switch(temp) {
 			case 0:
 				temp = read_int();
-				if(temp >= index || temp < 0) {
-					printf("Provided index is not available.");
+				if(temp < 0) {
+					printf("Invalid argument.\n");
+					while((tempc = getchar()) != '\n') { ; }
+					break;
+				} else if(temp >= index || temp < 0) {
+					printf("Provided index is not available.\n");
+					break;
 				}
 				print_key(&reverse_table[temp], length);
 				break;
 			case 1:
-				read_vec(our_vec, stdin, length);
+				temp = read_vec(our_vec, stdin, length);
+				if (temp != 0) {
+					printf("Provided key contains invalid characters.\n");
+					while((tempc = getchar()) != '\n') { ; }
+					break;
+				}
 				node_ptr = lookup(our_vec, length);
 				if( *node_ptr == NULL ) {
-					printf("Provided key is not available.");
+					printf("Provided key is not available.\n");
 					break;
 				}
 				printf("Index value is: %d", (*node_ptr)->index);
@@ -217,15 +233,17 @@ int read_vec(KEYTYPE* our_vec, FILE* in_file, int length) {
 	for(i=0; i<length; i++) {
 		result = fscanf(in_file, "%d", &read_val);
 		our_vec[i] = (KEYTYPE) read_val;
-		if (result != 1) { return result; }
+		if (result != 1) { return -1; }
 		if (our_vec[i] == -911) { return -1; }
 	}
 	return 0;
 }
 
 int read_int() {
-	int index;
-	(void) scanf("%d", &index);
+	int index, result;
+	if((result = scanf("%d", &index)) != 1) {
+		return -1;
+	}
 	return index;
 }
 
