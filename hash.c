@@ -65,6 +65,8 @@ int read_vec(KEYTYPE* our_vec, FILE* in_file, int length);
  */
 int vec_cmp(KEYTYPE* our_vec, KEYTYPE* their_vec, int length);
 
+/* Check whether the components of our_vec are <= the appropriate on in max_vec. */
+int vec_is_valid(KEYTYPE* our_vec, KEYTYPE* max_vec, int length);
 
 /* Print out the vector in clean form (e.g. <a, b, c, ..., z>) */
 void vec_print(KEYTYPE* our_vec, int length);
@@ -131,10 +133,13 @@ int main(int argc, char* argv[]) {
 	result = fscanf(in_file, "%d", &length);
 	
 	KEYTYPE our_vec[length];
-	read_vec(our_vec, in_file, length);
+	KEYTYPE max_vec[length];
+	read_vec(max_vec, in_file, length);
 	
 	while(read_vec(our_vec, in_file, length) == 0) {
-		result = insert(our_vec, length);
+		if(vec_is_valid(our_vec, max_vec, length)) {
+			result = insert(our_vec, length);
+		}
 		/*
 		if(result == -1) {
 			printf("Key ");
@@ -153,6 +158,7 @@ int main(int argc, char* argv[]) {
 	long time_diff = get_time();
 	printf("Time for insertion: %lf seconds\n",  (double) time_diff / 1e6);
 	
+	/*
 	printf("table size: %d\n",  TABLESIZE);
 	printf("items: %d\n", index);
 	printf("collisions: %d\n", collisions);
@@ -163,6 +169,7 @@ int main(int argc, char* argv[]) {
 	longest_link = 0;
 	map_traverse(link_length, length);
 	printf("largest bucket: %d\n", longest_link + 1);
+	*/
 	
 	printf("total memory used by table: %lfMB\n", ((double) total_memory(length)) / (1024*1024));
 	
@@ -170,7 +177,7 @@ int main(int argc, char* argv[]) {
 	int temp;
 	char tempc;
 	Node** node_ptr;
-	printf("\nLength of key is %d\n", length);
+	//printf("\nLength of key is %d\n", length);
 	while(1) {
 		printf("\nLookup by index (0), by key (1), or exit (2):\n-->  ");
 		temp = read_int();
@@ -300,6 +307,16 @@ int vec_cmp(KEYTYPE* our_vec, KEYTYPE* their_vec, int length) {
 		}
 	}
 	return 0;
+}
+
+int vec_is_valid(KEYTYPE* our_vec, KEYTYPE* max_vec, int length) {
+	int i;
+	for(i=0; i<length; i++) {
+		if (our_vec[i] > max_vec[i]) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 Node *create_node(int index, KEYTYPE* our_vec, int length) {
