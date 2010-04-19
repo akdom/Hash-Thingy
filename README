@@ -5,6 +5,9 @@ Compilation:
 Run the following command to compile hash.c to hash.out
   # make
 
+Execution requires first argument be input file
+  # ./hash.out <input_file>
+
 Hash function:
 
 We used a simple combination of shift, add and xor operations to hash our keys:
