@@ -14,7 +14,7 @@ We used a simple combination of shift, add and xor operations to hash our keys:
 		hash += 1;
 	}
 
-This function was chosen because of its simplicity and effectiveness. It isn't especially good, but none of our attempts at improvement or alternatives resulted in much improvement.
+This function was chosen because of its simplicity and effectiveness. It isn't especially good, but none of our attempts at improvement or alternatives resulted in much improvement.  We found something incredibly similar to this online (lost the source...) and it inspired our use.  In all honesty, we really just fiddled with different hash  operations and settled on this, since it gave the best results for the largest data set.  The ^= mixes in each of the vector components in such a way that it is significantly different for the same components in a different order.  The "(hash<<7) + (hash>>5)" also ensures ordering has a significant effect on the resulting hash.  The "hash += 1" just kind of makes it a little better... for no apparent reason.
 
 Collision policy:
 
