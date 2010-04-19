@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #define TABLESIZE (16384)
 #define KEYTYPE unsigned char
 #define INPUTSIZE 1024
@@ -24,6 +25,10 @@ int collisions = 0;
 
 /* Longest link */
 int longest_link = 0;
+
+/* Time helper variable */
+static struct timeval start;
+static struct timeval now;
 
 /* Node struct */
 typedef struct Node Node;
@@ -98,6 +103,12 @@ void print_key(Node *my_node, int length);
 /* Read an int from stdin */
 int read_int();
 
+/* Set start to current time. */
+void reset_time();
+
+/* Return time in microseconds since the last time reset_time() was called */
+long get_time();
+
 /* Main */
 int main(int argc, char* argv[]) { 
 	int length, result;
@@ -115,6 +126,7 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	
+	reset_time();
 	initialize();
 	result = fscanf(in_file, "%d", &length);
 	
@@ -138,16 +150,22 @@ int main(int argc, char* argv[]) {
 	
 	build_reverse(length);
 	
+	long time_diff = get_time();
+	printf("Time for insertion: %lf seconds\n",  (double) time_diff / 1e6);
+	
 	printf("table size: %d\n",  TABLESIZE);
 	printf("items: %d\n", index);
 	printf("collisions: %d\n", collisions);
 	printf("collisions/size: %lf\n", collisions/(double) TABLESIZE);
 	printf("empty slots: %d\n", TABLESIZE-(index-collisions));
 	printf("portion of table unused: %lf\n", (double) (TABLESIZE-(index-collisions)) / TABLESIZE);
+	
 	longest_link = 0;
 	map_traverse(link_length, length);
 	printf("largest bucket: %d\n", longest_link + 1);
+	
 	printf("total memory used by table: %lfMB\n", ((double) total_memory(length)) / (1024*1024));
+	
 	
 	int temp;
 	char tempc;
@@ -205,6 +223,15 @@ int main(int argc, char* argv[]) {
 	//map_traverse(print_hash, length);
 	
 	return 0;
+}
+
+void reset_time() {
+	gettimeofday(&start, 0);
+}
+
+long get_time() {
+	gettimeofday(&now, 0);
+	return (now.tv_sec - start.tv_sec)*1e6 + (now.tv_usec - start.tv_usec);
 }
 
 Node* build_reverse(int length) {
@@ -328,7 +355,6 @@ Node **lookup(KEYTYPE* our_vec, int length) {
 			return curr_node;
 		} else {
 			probes++;
-			printf("Step required, probes (%d)\n", probes);
 			curr_node = &(*curr_node)->next;
 		}
 	}
