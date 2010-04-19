@@ -1,0 +1,49 @@
+hash.c - created by Alex Kesling (ahkeslin), Samuel Christie (schrist)
+
+Compilation:
+
+Run the following command to compile hash.c to hash.out
+  # make
+
+Hash function:
+
+We used a simple combination of shift, add and xor operations to hash our keys:
+
+	for (i=0; i < length; i++) {
+		hash ^= (hash<<7) + (hash>>5) + our_vec[i];
+		hash += 1;
+	}
+
+This function was chosen because of its simplicity and effectiveness. It isn't especially good, but none of our attempts at improvement or alternatives resulted in much improvement.
+
+Collision policy:
+
+We used the simple policy of creating a linked list of nodes with the same hash code. This method guarantees a low amount of probing required, a low memory overhead, and reasonably lookup times. In our testing the longest linked list was about 8 elements long.
+
+It performed as we expected; no unnecessary complexity and acceptable speed.
+
+Performance Table:
+
++---------+---------+----------+
+|Dataset  |Time (s) |Space (MB)|
++---------+---------+----------+
+|ncd1     |0.016971 |0.126663  |
++---------+---------+----------+
+|ncd2     |0.003566 |0.135796  |
++---------+---------+----------+
+|ncd3     |0.027530 |0.186779  |
++---------+---------+----------+
+|ncd4     |0.054958 |0.313293  |
++---------+---------+----------+
+|multiklas|0.017517 |0.239788  |
++---------+---------+----------+
+|sat10    |0.001361 |0.129135  |
++---------+---------+----------+
+|sat100   |0.016979 |0.158798  |
++---------+---------+----------+
+|sat1000  |0.064977 |0.324234  |
++---------+---------+----------+
+|sat10000 |0.354840 |1.367477  |
++---------+---------+----------+
+|Average  |0.0620777|0.331329  |
++---------+---------+----------+
