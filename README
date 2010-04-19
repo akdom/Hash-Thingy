@@ -21,7 +21,7 @@ This function was chosen because of its simplicity and effectiveness. It isn't e
 
 Collision policy:
 
-We used the simple policy of creating a linked list of nodes with the same hash code. This method guarantees a low amount of probing required, a low memory overhead, and reasonably lookup times. In our testing the longest linked list was about 8 elements long.
+We used the simple policy of creating a linked list of nodes with the same hash code. This method guarantees a low amount of probing required, a low memory overhead, and reasonable lookup times. In our testing the longest linked list was about 8 elements long.
 
 It performed as we expected; no unnecessary complexity and acceptable speed.
 
